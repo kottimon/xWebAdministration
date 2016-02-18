@@ -39,7 +39,8 @@ function Get-TargetResource
                                     DefaultApplicationPool = (GetValue 'applicationDefaults' 'applicationPool')
                                     AllowSubDirConfig = (GetValue 'virtualDirectoryDefaults' 'allowSubDirConfig')
                                     ApplyTo = 'Machine'
-                                    LogDirectory = (GetValue 'siteDefaults/logFile' 'directory')}    
+                                    LogDirectory = (GetValue 'siteDefaults/logFile' 'directory')
+									Period = (GetValue 'siteDefaults/logFile' 'period')}
 }
 
 ######################################################################################
@@ -56,6 +57,8 @@ function Set-TargetResource
         [ValidateSet('W3C','IIS','NCSA','Custom')]
         [string]$LogFormat,
         [string]$LogDirectory,
+		[ValidateSet('Hourly','Daily','Weekly','Monthly')]
+		[string]$Period,
         [string]$TraceLogDirectory,
         [string]$DefaultApplicationPool,
         [ValidateSet('true','false')]
@@ -66,6 +69,7 @@ function Set-TargetResource
 
         SetValue 'siteDefaults/logFile' 'logFormat' $LogFormat
         SetValue 'siteDefaults/logFile' 'directory' $LogDirectory
+		SetValue 'siteDefaults/logFile' 'period' $Period
         SetValue 'siteDefaults/traceFailedRequestsLogging' 'directory' $TraceLogDirectory
         SetValue 'applicationDefaults' 'applicationPool' $DefaultApplicationPool
         SetValue 'virtualDirectoryDefaults' 'allowSubDirConfig' $AllowSubDirConfig
@@ -86,6 +90,8 @@ function Test-TargetResource
         [ValidateSet('W3C','IIS','NCSA','Custom')]
         [string]$LogFormat,
         [string]$LogDirectory,
+		[ValidateSet('Hourly','Daily','Weekly','Monthly')]
+		[string]$Period,		
         [string]$TraceLogDirectory,
         [string]$DefaultApplicationPool,
         [ValidateSet('true','false')]
@@ -107,6 +113,11 @@ function Test-TargetResource
     }
 
     if (!(CheckValue -path 'siteDefaults/logFile' -name 'directory' -newValue $LogDirectory)) 
+    { 
+        return $false 
+    }
+	
+	if (!(CheckValue -path 'siteDefaults/logFile' -name 'period' -newValue $Period)) 
     { 
         return $false 
     }
